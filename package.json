@@ -1,0 +1,64 @@
+{
+  "name": "table-product-dummy",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/cache": "11.13.1",
+    "@emotion/css": "^11.13.5",
+    "@emotion/react": "11.13.3",
+    "@emotion/server": "11.11.0",
+    "@emotion/styled": "11.13.0",
+    "@fontsource/poppins": "^5.2.6",
+    "@mui/icons-material": "^5.18.0",
+    "@mui/lab": "5.0.0-alpha.173",
+    "@mui/material": "5.16.7",
+    "@mui/x-data-grid": "6.20.1",
+    "@mui/x-date-pickers": "7.10.0",
+    "@mui/x-tree-view": "6.17.0",
+    "@popperjs/core": "2.11.8",
+    "@uiw/react-color": "2.3.0",
+    "axios": "1.7.5",
+    "axios-mock-adapter": "1.22.0",
+    "next": "14.2.7",
+    "next-runtime-env": "1.7.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sweetalert2": "^11.22.2"
+  },
+  "devDependencies": {
+    "@babel/core": "7.25.2",
+    "@iconify/react": "^6.0.0",
+    "@types/node": "20.14.9",
+    "@types/react": "18.3.4",
+    "@types/react-dom": "18.3.0",
+    "@typescript-eslint/eslint-plugin": "8.3.0",
+    "@typescript-eslint/parser": "8.3.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.7",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-import-resolver-typescript": "3.6.3",
+    "eslint-plugin-import": "2.29.1",
+    "husky": "9.1.5",
+    "lint-staged": "15.2.9",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "resolutions": {
+    "@mui/system": "5.4.1",
+    "prop-types": "15.7.2",
+    "csstype": "3.0.10",
+    "immutable": "4.2.2",
+    "@babel/core": "7.0.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
+      "biome check --files-ignore-unknown=true --write --no-errors-on-unmatched"
+    ]
+  }
+}
