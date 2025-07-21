@@ -7,6 +7,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Button,
+  ButtonGroup,
 } from "@mui/material";
 import {
   getProducts,
@@ -19,6 +21,9 @@ import {
 import FormProduct from "@/components/FormProduct";
 import Swal from "sweetalert2";
 import TableProduct from "@/components/TableProduct";
+import TableRowsIcon from "@mui/icons-material/TableRows";
+import AppsIcon from "@mui/icons-material/Apps";
+import CardProducts from "@/components/CardProduct";
 
 export default function Crud() {
   const [products, setProducts] = useState<any[]>([]);
@@ -28,10 +33,10 @@ export default function Crud() {
   const [total, setTotal] = useState(0);
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
   const fetchProducts = async () => {
     try {
-
       if (category && category !== "all") {
         const res = await getProductByCategory(category, page, rowsPerPage);
         const start = page * rowsPerPage;
@@ -127,7 +132,9 @@ export default function Crud() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     // setPage(0);
   };
@@ -151,41 +158,83 @@ export default function Crud() {
         selectedProduct={selectedProduct}
       />
 
-      <pre>{JSON.stringify(page, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(page, null, 2)}</pre> */}
 
       <Box sx={{ my: 8 }}>
-        <Box sx={{ display: "flex", alignItems: "center", my: 4, px: 4 }}>
-          <Typography variant="h6">Sort by</Typography>
-          <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-            <InputLabel id="select-category-label">Category</InputLabel>
-            <Select
-              labelId="select-category-label"
-              id="select-category"
-              value={category}
-              onChange={handleChangeCategory}
-            >
-              <MenuItem value="">
-                <em>All</em>
-              </MenuItem>
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {String(cat)}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            my: 4,
+            px: 4,
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="h6">Sort by</Typography>
+            <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="select-category-label">Category</InputLabel>
+              <Select
+                labelId="select-category-label"
+                id="select-category"
+                value={category}
+                onChange={handleChangeCategory}
+              >
+                <MenuItem value="">
+                  <em>All</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                {categories.map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {String(cat)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box>
+            <ButtonGroup variant="contained">
+              <Button
+                startIcon={<TableRowsIcon />}
+                onClick={() => setViewMode("table")}
+                color={viewMode === "table" ? "primary" : "inherit"}
+              >
+                Table
+              </Button>
+              <Button
+                startIcon={<AppsIcon />}
+                onClick={() => setViewMode("card")}
+                color={viewMode === "card" ? "primary" : "inherit"}
+              >
+                Card
+              </Button>
+            </ButtonGroup>
+          </Box>
         </Box>
 
-        <TableProduct
-          products={products}
-          onUpdate={setSelectedProduct}
-          onDelete={handleDeleteProduct}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          total={total}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
+        {viewMode === "table" ? (
+          <TableProduct
+            products={products}
+            onUpdate={setSelectedProduct}
+            onDelete={handleDeleteProduct}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            total={total}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        ) : (
+          <CardProducts
+            products={products}
+            onUpdate={setSelectedProduct}
+            onDelete={handleDeleteProduct}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            total={total}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        )}
       </Box>
     </Container>
   );
