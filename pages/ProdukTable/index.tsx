@@ -17,13 +17,14 @@ import {
   deleteProduct,
   getProductByCategory,
   getCategories,
-} from "@/lib/api";
+} from "@/lib/ApiProducts";
 import FormProduct from "@/components/FormProduct";
 import Swal from "sweetalert2";
 import TableProduct from "@/components/TableProduct";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import AppsIcon from "@mui/icons-material/Apps";
 import CardProducts from "@/components/CardProduct";
+import { SchemaFormCreateProduct } from "@/schemas/formProducts";
 
 export default function Crud() {
   const [products, setProducts] = useState<any[]>([]);
@@ -153,10 +154,7 @@ export default function Crud() {
         Manage Your Product
       </Typography>
 
-      <FormProduct
-        onSubmit={selectedProduct ? handleUpdateProduct : handleCreateProduct}
-        selectedProduct={selectedProduct}
-      />
+      <FormProduct onSubmit={handleCreateProduct} schema={SchemaFormCreateProduct} />
 
       {/* <pre>{JSON.stringify(page, null, 2)}</pre> */}
 
@@ -168,6 +166,10 @@ export default function Crud() {
             my: 4,
             px: 4,
             justifyContent: "space-between",
+            width: {
+              xs: "100%",
+              sm: "auto",
+            },
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>

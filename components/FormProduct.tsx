@@ -1,134 +1,122 @@
-import { Box, Button, TextField, Stack, Alert } from "@mui/material";
-import { useState, useEffect } from "react";
-import Swal from "sweetalert2";
+// src/components/FormProduct.tsx
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  SchemaFormCreateProduct,
+  SchemaFormCreateProductType,
+  SchemaFormEditProduct,
+  SchemaFormEditProductType,
+} from "@/schemas/formProducts";
+import { Button, Stack, styled, TextField } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 export default function FormProduct({ onSubmit, selectedProduct }: any) {
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    price: "",
-    image: "",
-    category: "",
-    stock: "",
+  const isEdit = !!selectedProduct;
+
+  const form = useForm<SchemaFormCreateProductType | SchemaFormEditProductType>({
+    resolver: yupResolver(isEdit ? SchemaFormEditProduct : SchemaFormCreateProduct),
+    defaultValues: {
+      title: selectedProduct?.title || "",
+      description: selectedProduct?.description || "",
+      price: selectedProduct?.price || "",
+      image: "",
+      category: selectedProduct?.category || "",
+      stock: selectedProduct?.stock || "",
+    },
   });
 
-  const [error, setError] = useState<string | null>(null);
+  const uploadedImage = form.watch("image");
 
-  useEffect(() => {
-    if (selectedProduct) {
-      setForm({
-        title: selectedProduct.title || "",
-        description: selectedProduct.description || "",
-        price: String(selectedProduct.price || ""),
-        image: selectedProduct.thumbnail || "",
-        category: selectedProduct.category || "",
-        stock: String(selectedProduct.stock || ""),
-      });
-    }
-  }, [selectedProduct]);
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    if (["price", "stock"].includes(name) && !/^\d*$/.test(value)) return;
-    setForm({ ...form, [name]: value });
-  };
-
-  const handleSubmit = () => {
-    const { title, description, price, category, stock } = form;
-
-    if (!title || !description || !price || !category || !stock) {
-      setError("Semua field harus diisi kecuali gambar (jika update)");
-      return;
-    }
-
-    setError(null);
-
-    const payload = selectedProduct
-      ? {
-          id: selectedProduct.id,
-          title: form.title,
-          description: form.description,
-          price: Number(form.price),
-          category: form.category,
-          stock: Number(form.stock),
-          image: form.image,
-        }
-      : {
-          title: form.title,
-          description: form.description,
-          price: Number(form.price),
-          category: form.category,
-          stock: Number(form.stock),
-          image: form.image,
-        };
-
-       
+  const handleSubmit = (data: any) => {
+    const payload = {
+      ...data,
+      price: Number(data.price),
+      stock: Number(data.stock),
+      image: data.image?.[0] || selectedProduct?.thumbnail || "",
+    };
 
     onSubmit(payload);
-
-    setForm({
-      title: "",
-      description: "",
-      price: "",
-      image: "",
-      category: "",
-      stock: "",
-    });
   };
 
   return (
-    <Stack spacing={2}>
-      {error && <Alert severity="error">{error}</Alert>}
-
-      <TextField
-        label="Product Name"
-        name="title"
-        value={form.title}
-        onChange={handleChange}
-        fullWidth
-      />
-      <TextField
-        label="Description"
-        name="description"
-        value={form.description}
-        onChange={handleChange}
-        fullWidth
-        multiline
-        rows={4}
-      />
-      {!selectedProduct && (
+    <form onSubmit={form.handleSubmit(handleSubmit)}>
+      <Stack spacing={2}>
         <TextField
-          label="Image URL"
-          name="image"
-          value={form.image}
-          onChange={handleChange}
-          fullWidth
+          label="Product Name"
+          {...form.register("title")}
+          error={!!form.formState.errors.title}
+          helperText={form.formState.errors.title?.message}
         />
-      )}
-      <TextField
-        label="Price"
-        name="price"
-        value={form.price}
-        onChange={handleChange}
-        fullWidth
-      />
-      <TextField
-        label="Category"
-        name="category"
-        value={form.category}
-        onChange={handleChange}
-        fullWidth
-      />
-      <TextField
-        label="Stock"
-        name="stock"
-        value={form.stock}
-        onChange={handleChange}
-        fullWidth
-      />
-      <Button variant="contained" onClick={handleSubmit}>
-        {selectedProduct ? "Update Product" : "Add Product"}
-      </Button>
-    </Stack>
+        <TextField
+          label="Description"
+          {...form.register("description")}
+          multiline
+          rows={4}
+          error={!!form.formState.errors.description}
+          helperText={form.formState.errors.description?.message}
+        />
+
+        <Button
+          component="label"
+          role={undefined}
+          variant="contained"
+          tabIndex={-1}
+          startIcon={<CloudUploadIcon />}
+        >
+          Upload file
+          <VisuallyHiddenInput
+            type="file"
+            {...form.register("image")}
+            accept="image/png, image/jpeg"
+          />
+        </Button>
+
+        {form.formState.errors.image && (
+          <span style={{ color: "red" }}>
+            {form.formState.errors.image.message}
+          </span>
+        )}
+
+        {uploadedImage && uploadedImage.length > 0 && (
+          <span style={{ fontSize: "14px", color: "green" }}>
+            File terpilih: {uploadedImage[0].name}
+          </span>
+        )}
+
+        <TextField
+          label="Price"
+          {...form.register("price")}
+          error={!!form.formState.errors.price}
+          helperText={form.formState.errors.price?.message}
+        />
+        <TextField
+          label="Category"
+          {...form.register("category")}
+          error={!!form.formState.errors.category}
+          helperText={form.formState.errors.category?.message}
+        />
+        <TextField
+          label="Stock"
+          {...form.register("stock")}
+          error={!!form.formState.errors.stock}
+          helperText={form.formState.errors.stock?.message}
+        />
+        <Button type="submit" variant="contained">
+          {isEdit ? "Update Product" : "Add Product"}
+        </Button>
+      </Stack>
+    </form>
   );
 }

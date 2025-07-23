@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { getProductDetail } from "@/lib/ApiProducts";
+import { getUserDetail } from "@/lib/ApiUser";
 import {
   Container,
   Typography,
@@ -9,16 +9,16 @@ import {
   Button,
 } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-export default function ProductDetail() {
+export default function userDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [product, setProduct] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      getProductDetail(Number(id))
-        .then((res) => setProduct(res.data))
+      getUserDetail(Number(id))
+        .then((res) => setUser(res.data))
         .catch((err) => console.log(err))
         .finally(() => setLoading(false));
     }
@@ -39,7 +39,7 @@ export default function ProductDetail() {
     );
   }
 
-  if (!product) {
+  if (!user) {
     return (
       <Container
         sx={{
@@ -84,40 +84,49 @@ export default function ProductDetail() {
               alignItems: "center",
             }}
           >
-            <img src={product.thumbnail} alt={product.title} />
+            <img src={user.thumbnail} alt={user.title} />
           </Box>
           <Box sx={{ flex: 1, ml: 4, mt: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-              {product.title}
+            <Typography variant="body1" sx={{ textAlign: "justify", textTransform: "capitalize" }}>
+            <span style={{ fontWeight: "bold" }}>Username</span> :{" "}
+              {user.username}
             </Typography>
             <Typography variant="body1" sx={{ textAlign: "justify" }}>
-              <span style={{ fontWeight: "bold" }}>Description</span> :{" "}
-              {product.description}
+              <span style={{ fontWeight: "bold" }}>First Name</span> :{" "}
+              {user.description}
             </Typography>
             <Typography variant="body1">
-              <span style={{ fontWeight: "bold" }}>Price</span> : $
-              {product.price}
+              <span style={{ fontWeight: "bold" }}>last Name</span> : $
+              {user.price}
             </Typography>
             <Typography variant="body1">
-              <span style={{ fontWeight: "bold" }}>Stock</span> :{" "}
-              {product.stock}
+              <span style={{ fontWeight: "bold" }}>maidenName</span> :{" "}
+              {user.stock}
             </Typography>
             <Typography variant="body1">
-              <span style={{ fontWeight: "bold" }}>Rating</span> :{" "}
-              {product.rating}
+              <span style={{ fontWeight: "bold" }}>Age</span> :{" "}
+              {user.rating}
             </Typography>
             <Typography variant="body1">
-              <span style={{ fontWeight: "bold" , textTransform: "capitalize"}}>Category</span> :{" "}
-              {product.category}
+              <span style={{ fontWeight: "bold" }}>University</span> :{" "}
+              {user.rating}
+            </Typography>
+            <Typography variant="body1">
+              <span style={{ fontWeight: "bold" }}>Country</span> :{" "}
+              {user.rating}
+            </Typography>
+            <Typography variant="body1">
+              <span style={{ fontWeight: "bold" , textTransform: "capitalize"}}>Gender</span> :{" "}
+              {user.category}
             </Typography>
           </Box>
         </Box>
 
         <Box sx={{ mt: 4, py: 4 }}>
           <Typography variant="h6">
-            Reviews ({product.reviews?.length})
+            Reviews ({user.reviews?.length})
           </Typography>
-          {product.reviews?.map((review: any, index: number) => (
+          {user.reviews?.map((review: any, index: number) => (
             <Box
               key={index}
               sx={{ mt: 2, p: 2, border: "1px solid #ccc", borderRadius: 2 }}
