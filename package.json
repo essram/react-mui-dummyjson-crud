@@ -24,6 +24,8 @@
     "@mui/x-tree-view": "6.17.0",
     "@popperjs/core": "2.11.8",
     "@tailwindcss/postcss": "^4.1.11",
+    "@tanstack/react-query": "^5.83.0",
+    "@tanstack/react-query-devtools": "^5.83.0",
     "@uiw/react-color": "2.3.0",
     "axios": "1.7.5",
     "axios-mock-adapter": "1.22.0",
@@ -41,6 +43,7 @@
   "devDependencies": {
     "@babel/core": "7.25.2",
     "@iconify/react": "^6.0.0",
+    "@tanstack/eslint-plugin-query": "^4.39.1",
     "@types/node": "20.14.9",
     "@types/react": "18.3.4",
     "@types/react-dom": "18.3.0",

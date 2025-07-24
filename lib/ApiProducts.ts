@@ -2,6 +2,10 @@ import axios from "axios";
 
 const API_URL = "https://dummyjson.com/products";
 
+const getAllProducts = (page: number, limit: number) => {
+  const skip = page * limit;
+  return axios.get(`${API_URL}?limit=${limit}&skip=${skip}`);
+};
 const getProductDetail = (id: number) => axios.get(`${API_URL}/${id}`);
 
 const createProduct = (
@@ -11,8 +15,8 @@ const createProduct = (
   category: string,
   stock: number,
   image: string
-) =>
-  axios.post(`${API_URL}/add`, {
+) => {
+  return axios.post(`${API_URL}/add`, {
     title,
     description,
     price,
@@ -20,18 +24,13 @@ const createProduct = (
     stock,
     thumbnail: image,
   });
-
-// const getProducts = () => axios.get(API_URL);
-
-const getProducts = (page: number, limit: number) => {
-  const skip = page * limit;
-  return axios.get(`${API_URL}?limit=${limit}&skip=${skip}`);
 };
+
+// const getAllProducts = () => axios.get(API_URL);
 
 export const getProductById = async (id: number) => {
   return await axios.get(`${API_URL}/${id}`);
 };
-
 
 const getCategories = () => axios.get(`${API_URL}/categories`);
 
@@ -53,14 +52,15 @@ const updateProduct = (
   price: number,
   category: string,
   stock: number
-) =>
-  axios.patch(`${API_URL}/${id}`, {
+) => {
+  return axios.patch(`${API_URL}/${id}`, {
     title,
     description,
     price,
     category,
     stock,
   });
+};
 
 const deleteProduct = (id: number) => axios.delete(`${API_URL}/${id}`);
 
@@ -68,7 +68,7 @@ const searchProduct = (query: string) =>
   axios.get(`${API_URL}/search?q=${query}`);
 
 export {
-  getProducts,
+  getAllProducts,
   getProductDetail,
   createProduct,
   updateProduct,

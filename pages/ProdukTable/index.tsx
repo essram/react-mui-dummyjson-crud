@@ -11,12 +11,8 @@ import {
   ButtonGroup,
 } from "@mui/material";
 import {
-  getProducts,
   createProduct,
   updateProduct,
-  deleteProduct,
-  getProductByCategory,
-  getCategories,
 } from "@/lib/ApiProducts";
 import FormProduct from "@/components/FormProduct";
 import Swal from "sweetalert2";
@@ -25,56 +21,38 @@ import TableRowsIcon from "@mui/icons-material/TableRows";
 import AppsIcon from "@mui/icons-material/Apps";
 import CardProducts from "@/components/CardProduct";
 import { SchemaFormCreateProduct } from "@/schemas/formProducts";
+import { useProducts } from "@/hooks/useGetProducts";
+import { useDeleteProduct } from "@/hooks/useDeleteProduct";
+import { useCategories } from "@/hooks/useCategories";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Crud() {
-  const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
-  const [total, setTotal] = useState(0);
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
-  const fetchProducts = async () => {
-    try {
-      if (category && category !== "all") {
-        const res = await getProductByCategory(category, page, rowsPerPage);
-        const start = page * rowsPerPage;
-        const end = start + rowsPerPage;
+  const queryClient = useQueryClient();
+  const deleteMutation = useDeleteProduct();
 
-        setProducts(res.data.products);
-        setTotal(res.data.total);
-      } else {
-        const res = await getProducts(page, rowsPerPage);
-        setProducts(res.data.products);
-        setTotal(res.data.total);
-      }
-    } catch (err) {
-      console.error("Gagal fetch produk", err);
-    }
-  };
+  const { data: productRes, isLoading } = useProducts(page, rowsPerPage, category);
+  const { data: categoriesRes, isLoading: loadingCategories } = useCategories();
 
-  const fetchCategories = async () => {
-    try {
-      const res = await getCategories();
-      const data = res.data;
-      const cleanCategories = Array.isArray(data)
-        ? data.map((item: any) => (typeof item === "string" ? item : item.name))
+  const Allproducts = productRes?.data?.products || [];
+  const totalProducts = productRes?.data?.total || 0;
+
+  useEffect(() => {
+    if (categoriesRes) {
+      const cleanCategories = Array.isArray(categoriesRes)
+        ? categoriesRes.map((item: any) =>
+            typeof item === "string" ? item : item.name
+          )
         : [];
       setCategories(cleanCategories);
-    } catch (err) {
-      console.error("Gagal fetch kategori", err);
     }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, [page, rowsPerPage, category]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  }, [categoriesRes]);
 
   const handleCreateProduct = async (data: any) => {
     try {
@@ -87,7 +65,7 @@ export default function Crud() {
         data.image
       );
       Swal.fire("Success", "Product created!", "success");
-      fetchProducts();
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     } catch (err) {
       console.error("Create error", err);
     }
@@ -103,7 +81,7 @@ export default function Crud() {
         data.category,
         data.stock
       );
-      fetchProducts();
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       setSelectedProduct(null);
     } catch (err) {
       console.error("Update error", err);
@@ -121,12 +99,14 @@ export default function Crud() {
 
     if (!result.isConfirmed) return;
 
-    try {
-      await deleteProduct(id);
-      fetchProducts();
-    } catch (err) {
-      console.error("Delete error", err);
-    }
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        Swal.fire("Deleted!", "Product has been deleted.", "success");
+      },
+      onError: () => {
+        Swal.fire("Error", "Failed to delete product", "error");
+      },
+    });
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -137,7 +117,6 @@ export default function Crud() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    // setPage(0);
   };
 
   const handleChangeCategory = (event: any) => {
@@ -154,9 +133,10 @@ export default function Crud() {
         Manage Your Product
       </Typography>
 
-      <FormProduct onSubmit={handleCreateProduct} schema={SchemaFormCreateProduct} />
-
-      {/* <pre>{JSON.stringify(page, null, 2)}</pre> */}
+      <FormProduct
+        onSubmit={handleCreateProduct}
+        schema={SchemaFormCreateProduct}
+      />
 
       <Box sx={{ my: 8 }}>
         <Box
@@ -166,10 +146,7 @@ export default function Crud() {
             my: 4,
             px: 4,
             justifyContent: "space-between",
-            width: {
-              xs: "100%",
-              sm: "auto",
-            },
+            width: { xs: "100%", sm: "auto" },
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -216,23 +193,23 @@ export default function Crud() {
 
         {viewMode === "table" ? (
           <TableProduct
-            products={products}
+            products={Allproducts}
             onUpdate={setSelectedProduct}
             onDelete={handleDeleteProduct}
             page={page}
             rowsPerPage={rowsPerPage}
-            total={total}
+            total={totalProducts}
             onChangePage={handleChangePage}
             onChangeRowsPerPage={handleChangeRowsPerPage}
           />
         ) : (
           <CardProducts
-            products={products}
+            products={Allproducts}
             onUpdate={setSelectedProduct}
             onDelete={handleDeleteProduct}
             page={page}
             rowsPerPage={rowsPerPage}
-            total={total}
+            total={totalProducts}
             onChangePage={handleChangePage}
             onChangeRowsPerPage={handleChangeRowsPerPage}
           />

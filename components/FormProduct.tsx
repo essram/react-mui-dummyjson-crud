@@ -1,4 +1,5 @@
-// src/components/FormProduct.tsx
+"use client";
+import { useCategories } from "@/hooks/useCategories";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -9,6 +10,12 @@ import {
 } from "@/schemas/formProducts";
 import { Button, Stack, styled, TextField } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { useCreateProduct } from "@/hooks/useCreateProduct";
+import { useUpdateProduct } from "@/hooks/useUpdateproduct";
+import Swal from "sweetalert2";
+import { useRouter } from "next/router";
+import { MenuItem, Select, InputLabel, FormControl } from "@mui/material";
+import { useEffect, useState } from "react";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -22,24 +29,57 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-export default function FormProduct({ onSubmit, selectedProduct }: any) {
+interface FormProductProps {
+  selectedProduct?: any;
+  onSuccess?: () => void;
+}
+
+export default function FormProduct({
+  onSubmit: onSuccess,
+  selectedProduct,
+}: any) {
+  const createMutation = useCreateProduct();
+  const updateMutation = useUpdateProduct();
+
   const isEdit = !!selectedProduct;
 
-  const form = useForm<SchemaFormCreateProductType | SchemaFormEditProductType>({
-    resolver: yupResolver(isEdit ? SchemaFormEditProduct : SchemaFormCreateProduct),
-    defaultValues: {
-      title: selectedProduct?.title || "",
-      description: selectedProduct?.description || "",
-      price: selectedProduct?.price || "",
-      image: "",
-      category: selectedProduct?.category || "",
-      stock: selectedProduct?.stock || "",
-    },
-  });
+  const form = useForm<SchemaFormCreateProductType | SchemaFormEditProductType>(
+    {
+      resolver: yupResolver(
+        isEdit ? SchemaFormEditProduct : SchemaFormCreateProduct
+      ),
+      defaultValues: {
+        title: selectedProduct?.title || "",
+        description: selectedProduct?.description || "",
+        price: selectedProduct?.price || "",
+        image: "",
+        category: selectedProduct?.category || "",
+        stock: selectedProduct?.stock || "",
+      },
+    }
+  );
+
+  const { data: categoriesRes, isLoading: loadingCategories } = useCategories();
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (categoriesRes) {
+      const clean = Array.isArray(categoriesRes)
+        ? categoriesRes.map((item: any) =>
+            typeof item === "string" ? item : item.name
+          )
+        : [];
+      setCategories(clean);
+    }
+  }, [categoriesRes]);
+
+  const router = useRouter();
 
   const uploadedImage = form.watch("image");
 
   const handleSubmit = (data: any) => {
+    const uploadedImage = form.watch("image") as FileList | undefined;
+
     const payload = {
       ...data,
       price: Number(data.price),
@@ -47,7 +87,48 @@ export default function FormProduct({ onSubmit, selectedProduct }: any) {
       image: data.image?.[0] || selectedProduct?.thumbnail || "",
     };
 
-    onSubmit(payload);
+    // onSuccess(payload);
+
+    if (isEdit) {
+      updateMutation.mutate(
+        {
+          id: selectedProduct.id,
+          title: payload.title,
+          description: payload.description,
+          price: payload.price,
+          category: payload.category,
+          stock: payload.stock,
+        },
+        {
+          onSuccess: () => {
+            Swal.fire({
+              title: "Product updated!",
+              icon: "success",
+              draggable: true,
+            });
+            router.push("/ProdukTable");
+            onSuccess?.();
+          },
+
+          onError: () => {
+            alert("Failed to update product");
+          },
+        }
+      );
+    } else {
+      createMutation.mutate(payload, {
+        onSuccess: () => {
+          Swal.fire("Success", "Product created!", "success");
+          // alert("Product created");
+          form.reset();
+          onSuccess?.();
+        },
+
+        onError: () => {
+          alert("Failed to create product");
+        },
+      });
+    }
   };
 
   return (
@@ -89,7 +170,7 @@ export default function FormProduct({ onSubmit, selectedProduct }: any) {
           </span>
         )}
 
-        {uploadedImage && uploadedImage.length > 0 && (
+        {uploadedImage?.length && (
           <span style={{ fontSize: "14px", color: "green" }}>
             File terpilih: {uploadedImage[0].name}
           </span>
@@ -101,20 +182,44 @@ export default function FormProduct({ onSubmit, selectedProduct }: any) {
           error={!!form.formState.errors.price}
           helperText={form.formState.errors.price?.message}
         />
-        <TextField
-          label="Category"
-          {...form.register("category")}
-          error={!!form.formState.errors.category}
-          helperText={form.formState.errors.category?.message}
-        />
+        <FormControl fullWidth error={!!form.formState.errors.category}>
+          <InputLabel id="category-label">Category</InputLabel>
+          <Select
+            labelId="category-label"
+            {...form.register("category")}
+            defaultValue=""
+          >
+            {categories.map((cat: any) => (
+              <MenuItem key={cat} value={cat}>
+                {String(cat)}
+              </MenuItem>
+            ))}
+          </Select>
+          {form.formState.errors.category && (
+            <span style={{ color: "red", fontSize: "12px" }}>
+              {form.formState.errors.category.message}
+            </span>
+          )}
+        </FormControl>
+
         <TextField
           label="Stock"
           {...form.register("stock")}
           error={!!form.formState.errors.stock}
           helperText={form.formState.errors.stock?.message}
         />
-        <Button type="submit" variant="contained">
-          {isEdit ? "Update Product" : "Add Product"}
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={createMutation.isLoading || updateMutation.isLoading}
+        >
+          {isEdit
+            ? updateMutation.isLoading
+              ? "Updating..."
+              : "Update Product"
+            : createMutation.isLoading
+              ? "Adding..."
+              : "Add Product"}
         </Button>
       </Stack>
     </form>
