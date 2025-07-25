@@ -5,6 +5,7 @@ import styles from "@/styles/Home.module.css";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Card, Container } from "@mui/material";
+import FormTugas from "@/components/formTugas";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -40,7 +41,7 @@ export default function Home() {
         })
       } */}
 
-      home
+      <FormTugas/>
     </Container>
   );
 }
