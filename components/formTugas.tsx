@@ -13,7 +13,7 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import TugasCard from "@/components/cardTugas"; // pastikan path dan casing benar
+import TugasCard from "@/components/cardTugas";
 
 const schema = yup.object({
   nama: yup.string().required("Nama tugas wajib diisi"),
@@ -75,7 +75,6 @@ export default function FormTugasSekolah() {
         helperText={errors.deskripsi?.message}
       />
 
-      {/* Prioritas */}
       <FormControlLabel
         control={
           <Controller
@@ -90,7 +89,6 @@ export default function FormTugasSekolah() {
         label="Tandai sebagai tugas prioritas"
       />
 
-      {/* Tanggal Mulai */}
       <Controller
         name="mulai"
         control={control}
@@ -110,7 +108,6 @@ export default function FormTugasSekolah() {
         )}
       />
 
-      {/* Deadline */}
       <Controller
         name="deadline"
         control={control}
@@ -139,7 +136,6 @@ export default function FormTugasSekolah() {
         Simpan Tugas 📥
       </Button>
 
-      {/* Tugas yang sudah disubmit */}
       {tugasList.map((tugas, index) => (
         <TugasCard
           key={index}
