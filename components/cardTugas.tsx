@@ -4,7 +4,7 @@ import { format } from "date-fns";
 interface TugasCardProps {
   nama: string;
   deskripsi: string;
-  prioritas: boolean;
+  priority: boolean;
   mulai: Date | null;
   deadline: Date | null;
 }
@@ -12,7 +12,7 @@ interface TugasCardProps {
 export default function TugasCard({
   nama,
   deskripsi,
-  prioritas,
+  priority: prioritas,
   mulai,
   deadline,
 }: TugasCardProps) {
@@ -20,7 +20,7 @@ export default function TugasCard({
     <Card sx={{ bgcolor: prioritas ? "#ffe0e0" : "#f5f5f5" }}>
       <CardContent>
         <Typography variant="h6" fontWeight={700}>
-          📌 {nama}
+          {nama}
         </Typography>
         <Typography variant="body2" color="text.secondary" gutterBottom>
           {deskripsi}
@@ -33,7 +33,7 @@ export default function TugasCard({
         </Typography>
         {prioritas && (
           <Typography variant="caption" color="error">
-            🔥 Tugas Prioritas
+            Tugas Prioritas
           </Typography>
         )}
       </CardContent>

@@ -141,7 +141,7 @@ export default function FormTugasSekolah() {
           key={index}
           nama={tugas.nama}
           deskripsi={tugas.deskripsi}
-          prioritas={tugas.prioritas}
+          priority={tugas.prioritas}
           mulai={tugas.mulai}
           deadline={tugas.deadline}
         />
