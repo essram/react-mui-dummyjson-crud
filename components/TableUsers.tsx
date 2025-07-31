@@ -52,7 +52,6 @@ export default function TableUser({
   const router = useRouter();
 
   return (
-    // Hanya ganti bagian return-nya aja:
     <Box sx={{ px: 4 }}>
       <Typography
         variant="h4"
